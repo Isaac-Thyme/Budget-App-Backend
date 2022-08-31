@@ -51,6 +51,8 @@ routeObject.budget = async function (req, res) {
             temp.additionalExpenses = req.body.additionalExpenses || 0;
             temp.personalSavings = req.body.personalSavings || 0;
             temp.retirementSavings = req.body.retirementSavings || 0;
+            temp.dailyReset = new Date().getDate();
+            temp.monthlyReset = new Date().getMonth();
             let createdBudget = await Budget.create(temp);
             u.budget.push(createdBudget.budgetName);
             u.save();
@@ -64,6 +66,15 @@ routeObject.budget = async function (req, res) {
 routeObject.getBudget = async function (req, res) {
     try {
         let budget = await Budget.findOne({ budgetName: req.query.budgetName });
+        let curDay = new Date().getDate();
+        let curMonth = new Date().getMonth();
+        // Could add a year property for nearly full bug prevention, but doubt someone would have the site up for a year for it to not refresh given on a day or month GET request
+        if (budget.monthlyReset < curMonth || budget.dailyReset > curDay) {
+            await Budget.findOneAndUpdate({ budgetName: req.query.budgetName }, {
+                additionalExpenses: 0, dailyReset: curDay, monthlyReset: curMonth
+            }, { new: true });
+        }
+        budget = await Budget.findOne({ budgetName: req.query.budgetName });
         res.status(200).send(budget);
     } catch {
         res.status(400).send('Budget not found')

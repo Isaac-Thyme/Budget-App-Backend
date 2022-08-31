@@ -8,6 +8,8 @@ const budgetSchema = new Schema({
     monthlyIncome: { type: Number, required: false },
     monthlyLivingExpenses: { type: Number, required: false },
     additionalExpenses: { type: Number, required: false },
+    monthlyReset: { type: Number, required: true },
+    dailyReset: { type: Number, required: true },
     personalSavings: { type: Number, required: false },
     retirementSavings: { type: Number, required: false }
 });
